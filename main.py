@@ -44,6 +44,7 @@ def get_free_proxies():
   
 
 url = 'http://httpbin.org/ip'
+all_a_tag = []
 
 proxies = get_free_proxies()
 
@@ -56,8 +57,7 @@ def webRequest(proxy):
     
     if webHTML.status_code == 200:
       soup = bs(webHTML.content, 'html.parser')
-      title = soup.find_all('a')
-      print(title)
+      all_a_tag = soup.find_all('a')
       return webHTML.status_code
   except requests.exceptions.ConnectTimeout:
     print("Web Time out")
@@ -65,19 +65,18 @@ def webRequest(proxy):
     print('Web HTTP Error')
   except requests.exceptions.ConnectionError:
     print('Web Connection Error')
-  except requests.exceptions.ProxyError:
-    print('Proxy Error')
   except:
     print('Web Other error')
   
   
+
 
 for i in range(len(proxies)):
   proxy = proxies[i]
   # print('Request Number:', str(i+1), 'Ip:', str(proxy))
   
   try:
-    response = requests.get(url, proxies={"http": proxy, "https": proxy}, timeout=1)
+    response = requests.get(url, proxies={"http": proxy, "https": proxy}, timeout=3)
     statusCode = webRequest(proxy)
     if (statusCode == 200):
       break
@@ -85,4 +84,9 @@ for i in range(len(proxies)):
     print("Proxy Time out")
   except:
     print('Proxy Other Error')
+  # finally:
+  #   print('Proxy ', str(i+1), ': ', proxy)
+
+print(len(proxies))
+print(all_a_tag[0:3])
 
