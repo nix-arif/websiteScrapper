@@ -1,4 +1,3 @@
-from asyncio import exceptions
 import requests
 import random
 from bs4 import BeautifulSoup as bs
@@ -51,9 +50,15 @@ proxies = get_free_proxies()
 def webRequest(proxy):
   webUrl = 'https://www.jakelonline.com/main'
   try:
-    soup = bs(requests.get(webUrl).content, 'html.parser', proxies={"http": proxy, "https": proxy})
-    title = soup.find('title')
-    print(title.text)
+    # soup = bs(requests.get(webUrl).content, 'html.parser', proxies={"http": proxy, "https": proxy})
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36'}
+    webHTML = requests.get(webUrl, headers=headers, proxies={"http": proxy, "https": proxy}, timeout=10)
+    
+    if webHTML.status_code == 200:
+      soup = bs(webHTML.content, 'html.parser')
+      title = soup.find_all('a')
+      print(title)
+      return webHTML.status_code
   except requests.exceptions.ConnectTimeout:
     print("Web Time out")
   except requests.exceptions.HTTPError as e:
@@ -68,13 +73,16 @@ def webRequest(proxy):
   
 
 for i in range(len(proxies)):
-  print('Request Number:', str(i+1))
   proxy = proxies[i]
+  # print('Request Number:', str(i+1), 'Ip:', str(proxy))
   
   try:
     response = requests.get(url, proxies={"http": proxy, "https": proxy}, timeout=1)
-    webRequest(proxy)
-    break
+    statusCode = webRequest(proxy)
+    if (statusCode == 200):
+      break
   except requests.exceptions.ConnectTimeout:
     print("Proxy Time out")
+  except:
+    print('Proxy Other Error')
 
