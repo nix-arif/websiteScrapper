@@ -60,6 +60,8 @@ def webRequest(proxy):
     print('Web HTTP Error')
   except requests.exceptions.ConnectionError:
     print('Web Connection Error')
+  except requests.exceptions.ProxyError:
+    print('Proxy Error')
   except:
     print('Web Other error')
   
